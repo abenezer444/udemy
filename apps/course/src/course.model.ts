@@ -1,42 +1,31 @@
 import { Schema, model, Document } from 'mongoose';
 
-// Teacher subdocument schema
-interface Teacher {
-  id: string;
-  name: string;
-  email: string;
-}
-
-// Student subdocument schema
-interface Student {
-  id: string;
-  name: string;
-  email: string;
-}
-
-// Course document schema
-interface CourseDoc extends Document {
+// Define the Lesson subdocument schema
+interface Lesson {
   title: string;
-  description: string;
-  teacher: Teacher;
-  students: Student[];
-  // Add more fields as needed
+  content: string;
 }
+
+// Define the Course document schema
+interface CourseDoc extends Document {
+  authorId: string; // Author's ID
+  name: string;
+  description: string;
+  students: string[]; // List of student IDs
+  lessons: Lesson[]; // Array of lessons
+}
+
+const LessonSchema = new Schema({
+  title: { type: String, required: true },
+  content: { type: String, required: true }
+});
 
 const CourseSchema = new Schema<CourseDoc>({
-  title: { type: String, required: true },
+  authorId: { type: Schema.Types.ObjectId, required: true }, // Assuming authorId is a Mongoose ObjectId
+  name: { type: String, required: true },
   description: { type: String, required: true },
-  teacher: {
-    id: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true }
-  },
-  students: [{
-    id: { type: String, required: true },
-    name: { type: String, required: true },
-    email: { type: String, required: true }
-  }],
-  // Add more fields here
+  students: [{ type: Schema.Types.ObjectId, ref: 'Student' }], // Assuming student is another model
+  lessons: [LessonSchema] // Array of Lesson subdocuments
 });
 
 const CourseModel = model<CourseDoc>('Course', CourseSchema);
